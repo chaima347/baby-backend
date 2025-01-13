@@ -1,31 +1,36 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 
-require('dotenv').config();
+dotenv.config();
 
-const mongoose = require('mongoose');
-const express = require('express');
 const app = express();
 
 // Import routes
-const ParentRoutes = require('./Routes/ParentRoute.js');
+const parentRoutes = require("./routes/ParentRoute");
 
 
-app.use(express.json());
+// Middleware
+app.use(express.json()); // Parse JSON requests
 
-const dbURI = process.env.MONGO_URI; 
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// Connect to MongoDB
-mongoose.connect(dbURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('Successfully connected to MongoDB');
-}).catch((error) => {
-  console.error('Error connecting to MongoDB:', error);
+// API routes
+app.use("/api/parents", parentRoutes); // Parent-related routes
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "An internal server error occurred" });
 });
 
-app.use('/api/parents', ParentRoutes);
-
-const port = process.env.PORT || 5000; 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Server setup
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
