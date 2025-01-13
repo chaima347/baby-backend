@@ -1,10 +1,13 @@
-const http = require('http');
+const mongoose = require('mongoose');
 
-const server = http.createServer((req, res) => {
-  res.write('Hello, world!');
-  res.end();
-});
+// MongoDB connection string (replace <your-db-name> with your database name)
+const dbURI = 'mongodb://localhost:27017/dada'; 
 
-server.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
+mongoose.connect(dbURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('Successfully connected to MongoDB');
+}).catch((error) => {
+  console.error('Error connecting to MongoDB:', error);
 });
